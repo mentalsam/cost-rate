@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>原価率計算ツール</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .calculator-section {
+            margin-bottom: 50px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        label {
+            display: inline-block;
+            width: 220px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input {
+            padding: 8px 12px;
+            width: 180px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: white;
+            border-left: 5px solid #3498db;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .highlight-text {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-section">
+        <h2>設定に使用する原価率計算</h2>
+        
+        <div class="input-group">
+            <label>景品の仕入れ価格 (円):</label>
+            <input type="number" id="setup-cost" min="0" placeholder="仕入れ価格を入力">
+        </div>
+        
+        <div class="input-group">
+            <label>1回プレイの料金 (円):</label>
+            <input type="number" id="setup-price" min="0" value="100" placeholder="プレイ料金を入力">
+        </div>
+        
+        <div class="input-group">
+            <button onclick="calculateSetup()">計算する</button>
+        </div>
+        
+        <div class="result" id="setup-result">
+            <p><span class="highlight-text">原価率20%～25%に必要なプレイ回数</span>: <span id="plays-needed">---</span></p>
+            <p id="detail-result"></p>
+        </div>
+    </div>
+
+    <div class="calculator-section">
+        <h2>クレーンゲーム原価率計算ツール</h2>
+        
+        <div class="input-group">
+            <label>景品の仕入れ価格 (円):</label>
+            <input type="number" id="crane-cost" min="0" placeholder="仕入れ価格を入力">
+        </div>
+        
+        <div class="input-group">
+            <label>1回プレイの料金 (円):</label>
+            <input type="number" id="crane-price" min="0" placeholder="プレイ料金を入力">
+        </div>
+        
+        <div class="input-group">
+            <label>プレイ回数:</label>
+            <input type="number" id="crane-plays" min="1" placeholder="プレイ回数を入力">
+        </div>
+        
+        <div class="input-group">
+            <button onclick="calculateCrane()">計算する</button>
+        </div>
+        
+        <div class="result">
+            <p>原価率: <span id="crane-result">---</span>%</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateSetup() {
+            const cost = parseFloat(document.getElementById("setup-cost").value);
+            const price = parseFloat(document.getElementById("setup-price").value);
+            const playsNeeded = document.getElementById("plays-needed");
+            const detailResult = document.getElementById("detail-result");
+            
+            if (isNaN(cost) || cost < 0) {
+                playsNeeded.innerHTML = "<span class='error'>有効な景品価格を入力してください</span>";
+                detailResult.textContent = "";
+                return;
+            }
+            
+            if (isNaN(price) || price <= 0) {
+                playsNeeded.innerHTML = "<span class='error'>有効なプレイ料金を入力してください</span>";
+                detailResult.textContent = "";
+                return;
+            }
+            
+            const plays25Percent = Math.ceil(cost / (price * 0.25));
+            const plays20Percent = Math.floor(cost / (price * 0.20));
+            
+            if (plays25Percent <= plays20Percent) {
+                playsNeeded.textContent = `${plays25Percent} ～ ${plays20Percent}回`;
+                
+                const minSales = price * plays25Percent;
+                const maxSales = price * plays20Percent;
+                const minRate = (cost / minSales * 100).toFixed(2);
+                const maxRate = (cost / maxSales * 100).toFixed(2);
+                
+                detailResult.innerHTML = `
+                    <strong>${plays25Percent}回の場合:</strong> 売上 ${minSales.toLocaleString()}円、原価率 ${minRate}%<br>
+                    <strong>${plays20Percent}回の場合:</strong> 売上 ${maxSales.toLocaleString()}円、原価率 ${maxRate}%
+                `;
+            } else {
+                playsNeeded.innerHTML = "<span class='error'>条件を満たすプレイ回数がありません</span>";
+                detailResult.textContent = "プレイ料金を調整してみてください。";
+            }
+        }
+
+        function calculateCrane() {
+            const cost = parseFloat(document.getElementById("crane-cost").value);
+            const price = parseFloat(document.getElementById("crane-price").value);
+            const plays = parseFloat(document.getElementById("crane-plays").value);
+
+            if (cost >= 0 && price > 0 && plays >= 1) {
+                const sales = price * plays;
+                const rate = (cost / sales) * 100;
+                document.getElementById("crane-result").innerText = rate.toFixed(2);
+            } else {
+                document.getElementById("crane-result").innerText = "正しい値を入力してください";
+            }
+        }
+    </script>
+</body>
+</html>
