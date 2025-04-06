@@ -191,6 +191,7 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
             outline: none;
             background-color: #fff;
+            color: black; /* 入力時の色を黒に変更 */
         }
 
         input[type="number"] {
@@ -210,6 +211,7 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
             outline: none;
             background-color: #fff;
+            color: black; /* 入力時の色を黒に変更 */
         }
         
         /* 入力フィールドのプレースホルダーのスタイル */
@@ -562,14 +564,24 @@
             <h2>計算手順</h2>
             <div style="margin-top: 10px; padding: 20px; background-color: rgba(67, 97, 238, 0.05); border-radius: 8px; font-size: 0.9rem; line-height: 1.6;">
                 <ul style="padding-left: 20px;">
-                    <li>20%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.20) を切り上げ</li>
-                    <li>25%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.25) を切り上げ</li>
-                    <li>22%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.22) を切り捨て（一般的な確率機の基準値）</li>
+                    <li>25%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.25) を切り捨て</li>
+                    <li>22%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.22) を切り捨て</li>
+                    <li>20%原価率に必要なプレイ回数 = 景品価格 ÷ (プレイ料金 × 0.20) を切り捨て</li>
                 </ul>
                 <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-secondary);">※原価率 = (景品の仕入れ価格 ÷ 総売上) × 100</p>
             </div>
+            
+            <!-- ここにQRコードを追加 -->
+            <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: rgba(67, 97, 238, 0.05); border-radius: 8px;">
+                <p style="margin-bottom: 10px;">このサイトをQRで読み込む</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://mentalsam.github.io/cost-rate/" 
+                     alt="サイトQRコード" 
+                     style="width: 150px; height: 150px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;">
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+                    <a href="https://mentalsam.github.io/cost-rate/" target="_blank"></a>
+                </p>
+            </div>
         </div>
-    </div>
 
     <footer>
         <p style="margin-top: 20px;">© 2025 Matsuda rights reserved.</p>
@@ -720,9 +732,9 @@
                 return;
             }
             
-            const plays25Percent = Math.ceil(cost / (price * 0.25));
+            const plays25Percent = Math.floor(cost / (price * 0.25));
             const plays22Percent = Math.floor(cost / (price * 0.22));
-            const plays20Percent = Math.ceil(cost / (price * 0.20));
+            const plays20Percent = Math.floor(cost / (price * 0.20));
             
             if (plays25Percent <= plays20Percent) {
                 playsNeeded.textContent = `${plays25Percent} ～ ${plays20Percent}回`;
