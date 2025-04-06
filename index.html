@@ -3,210 +3,761 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="景品の原価率を簡単に計算できるツールです。クレーンゲームや設定に使用する原価率を計算できます。">
+    <meta name="theme-color" content="#4361ee">
     <title>原価率計算ツール</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary-color: #ef476f;
+            --success-color: #06d6a0;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #2b2d42;
+            --text-secondary: #495057;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
             padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+            max-width: 100%;
+            overflow-x: hidden;
+            background-image: linear-gradient(to bottom, rgba(67, 97, 238, 0.03), transparent);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
 
         h2 {
-            color: #2c3e50;
+            color: var(--text-color);
             text-align: center;
-            margin-bottom: 30px;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
         }
 
         .calculator-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            padding: 30px;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .calculator-section:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+        }
+        
+        .calculator-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
             display: block;
-            font-weight: bold;
-            color: #34495e;
-            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-size: 1rem;
         }
 
         .price-selector {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .price-buttons {
             display: flex;
+            gap: 8px;
             flex-wrap: wrap;
-            gap: 5px;
         }
 
         .price-btn {
-            background: #f0f0f0;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
+            background: rgba(67, 97, 238, 0.05);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            border-radius: 30px;
+            padding: 10px 18px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 16px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .price-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+            z-index: -1;
+            opacity: 0.1;
         }
 
         .price-btn:hover {
-            background: #e0e0e0;
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .price-btn:hover::before {
+            width: 100%;
         }
 
         .price-btn.selected {
-            background: #3498db;
+            background: var(--primary-color);
             color: white;
-            font-weight: bold;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(67, 97, 238, 0.3);
+            border-color: transparent;
+        }
+        
+        .price-btn.selected::before {
+            display: none;
         }
 
         .custom-price input {
-            padding: 10px 15px;
+            padding: 12px 15px;
             width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+            max-width: 150px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 30px;
             text-align: center;
-            box-sizing: border-box;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            background-color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-price input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+            background-color: #fff;
         }
 
         input[type="number"] {
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            padding: 14px 18px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
             width: 100%;
-            box-sizing: border-box;
-            font-size: 16px;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            background-color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+            background-color: #fff;
+        }
+        
+        /* 入力フィールドのプレースホルダーのスタイル */
+        ::placeholder {
+            color: rgba(73, 80, 87, 0.5);
+            transition: var(--transition);
+        }
+        
+        input:focus::placeholder {
+            opacity: 0.7;
+            transform: translateX(5px);
         }
 
         .calculate-btn {
-            background: #3498db;
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 15px 24px;
-            border-radius: 6px;
+            padding: 14px 24px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            font-size: 18px;
+            font-size: 1.1rem;
+            font-weight: 600;
             width: 100%;
-            transition: background 0.2s;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.7s ease;
+            z-index: -1;
         }
 
         .calculate-btn:hover {
-            background: #2980b9;
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
         }
 
         .result {
-            margin-top: 25px;
-            padding: 20px;
-            background: white;
-            border-left: 5px solid #3498db;
-            border-radius: 4px;
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--card-color);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            overflow: hidden;
+        }
+        
+        .result::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+            border-radius: 5px 0 0 5px;
+        }
+
+        .result:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        /* 結果表示のアニメーション */
+        @keyframes highlightResult {
+            0% { background-color: rgba(67, 97, 238, 0.05); }
+            50% { background-color: rgba(67, 97, 238, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        .result p {
+            padding: 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        
+        .result p:hover {
+            background-color: rgba(67, 97, 238, 0.05);
         }
 
         .error {
-            color: #e74c3c;
+            color: var(--secondary-color);
             font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .error::before {
+            content: '\f071';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
         }
 
         .highlight-text {
-            color: #e74c3c;
+            color: var(--secondary-color);
             font-weight: bold;
+            position: relative;
+            display: inline-block;
+            padding: 0 2px;
+        }
+        
+        .highlight-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: rgba(239, 71, 111, 0.2);
+            border-radius: 2px;
         }
 
         .recommended {
-            color: #27ae60;
+            color: var(--success-color);
             font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .recommended::before {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
         }
 
-        @media (min-width: 600px) {
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calculator-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* レスポンシブデザイン */
+        @media (min-width: 768px) {
             .price-selector {
                 flex-direction: row;
                 align-items: center;
+            }
+
+            .custom-price input {
+                width: 150px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 15px 10px;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .calculator-section {
+                padding: 20px 15px;
+                margin-bottom: 30px;
+            }
+
+            .price-buttons {
+                justify-content: center;
+            }
+
+            .price-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 70px;
+                min-height: 44px; /* タッチターゲットサイズの確保 */
+                touch-action: manipulation;
+            }
+
+            .custom-price {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .custom-price input {
+                max-width: 100%;
+                min-height: 44px; /* タッチターゲットサイズの確保 */
+                font-size: 16px; /* iOSでのズームを防止 */
+            }
+
+            input[type="number"] {
+                min-height: 44px; /* タッチターゲットサイズの確保 */
+                font-size: 16px; /* iOSでのズームを防止 */
+            }
+
+            .calculate-btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+                min-height: 50px; /* タッチターゲットサイズの確保 */
+                touch-action: manipulation;
+            }
+
+            .result {
+                padding: 20px 15px;
+            }
+            
+            /* スクロールの滑らかさを向上 */
+            .container {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            /* タップ状態のフィードバック */
+            .price-btn:active, .calculate-btn:active {
+                transform: scale(0.98);
+                opacity: 0.9;
+            }
+            
+            /* モバイルでのフォーカス表示を改善 */
+            input:focus {
+                outline: none;
+            }
+        }
+
+        /* ダークモードサポート */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --card-color: #2d2d2d;
+                --text-color: #f0f0f0;
+                --text-secondary: #d0d0d0;
+            }
+
+            .price-btn {
+                background: #3d3d3d;
+                color: #e0e0e0;
+            }
+
+            .price-btn:hover {
+                background: #4d4d4d;
+            }
+
+            input[type="number"], .custom-price input {
+                background-color: #3d3d3d;
+                color: #e0e0e0;
+                border-color: #555;
             }
         }
     </style>
 </head>
 <body>
-    <div class="calculator-section">
-        <h2>設定に使用する原価率計算</h2>
-        
-        <div class="input-group">
-            <label>景品の仕入れ価格 (円)</label>
-            <input type="number" id="setup-cost" min="0" placeholder="例: 800" oninput="calculateSetup()">
-        </div>
-        
-        <div class="input-group">
-            <label>1回プレイの料金 (円)</label>
-            <div class="price-selector">
-                <div class="price-buttons">
-                    <button class="price-btn" data-price="100">100円</button>
-                    <button class="price-btn" data-price="200">200円</button>
-                    <button class="price-btn" data-price="300">300円</button>
-                    <button class="price-btn" data-price="400">400円</button>
-                    <button class="price-btn" data-price="500">500円</button>
-                </div>
-                <div class="custom-price">
-                    <input type="number" id="setup-price" min="100" placeholder="自由入力" oninput="calculateSetup()">
+    <div class="container">
+        <div class="calculator-section">
+            <h2>設定に使用する原価率計算</h2>
+            
+            <div class="input-group">
+                <label><i class="fas fa-yen-sign"></i> 景品の仕入れ価格 (円)</label>
+                <input type="number" id="setup-cost" min="0" placeholder="例: 800" oninput="calculateSetup()">
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-coins"></i> 1回プレイの料金 (円)</label>
+                <div class="price-selector">
+                    <div class="price-buttons">
+                        <button class="price-btn" data-price="100">100円</button>
+                        <button class="price-btn" data-price="200">200円</button>
+                        <button class="price-btn" data-price="300">300円</button>
+                        <button class="price-btn" data-price="400">400円</button>
+                        <button class="price-btn" data-price="500">500円</button>
+                    </div>
+                    <div class="custom-price">
+                        <input type="number" id="setup-price" min="100" placeholder="自由入力" oninput="calculateSetup()">
+                    </div>
                 </div>
             </div>
+            
+            <button class="calculate-btn" onclick="calculateSetup()">
+                <i class="fas fa-calculator"></i> 計算する
+            </button>
+            
+            <div class="result" id="setup-result">
+                <p><span class="highlight-text">原価率20%～25%に必要なプレイ回数</span>: <span id="plays-needed">---</span></p>
+                <p id="detail-result"></p>
+            </div>
         </div>
-        
-        <button class="calculate-btn" onclick="calculateSetup()">計算する</button>
-        
-        <div class="result" id="setup-result">
-            <p><span class="highlight-text">原価率20%～25%に必要なプレイ回数</span>: <span id="plays-needed">---</span></p>
-            <p id="detail-result"></p>
-        </div>
-    </div>
 
-    <div class="calculator-section">
-        <h2>クレーンゲーム原価率計算ツール</h2>
-        
-        <div class="input-group">
-            <label>景品の仕入れ価格 (円)</label>
-            <input type="number" id="crane-cost" min="0" placeholder="例: 800" oninput="calculateCrane()">
-        </div>
-        
-        <div class="input-group">
-            <label>1回プレイの料金 (円)</label>
-            <div class="price-selector">
-                <div class="price-buttons">
-                    <button class="price-btn" data-price="100">100円</button>
-                    <button class="price-btn" data-price="200">200円</button>
-                    <button class="price-btn" data-price="300">300円</button>
-                    <button class="price-btn" data-price="400">400円</button>
-                    <button class="price-btn" data-price="500">500円</button>
-                </div>
-                <div class="custom-price">
-                    <input type="number" id="crane-price" min="100" placeholder="自由入力" oninput="calculateCrane()">
+        <div class="calculator-section">
+            <h2>クレーンゲーム原価率計算ツール</h2>
+            
+            <div class="input-group">
+                <label><i class="fas fa-yen-sign"></i> 景品の仕入れ価格 (円)</label>
+                <input type="number" id="crane-cost" min="0" placeholder="例: 800" oninput="calculateCrane()">
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-coins"></i> 1回プレイの料金 (円)</label>
+                <div class="price-selector">
+                    <div class="price-buttons">
+                        <button class="price-btn" data-price="100">100円</button>
+                        <button class="price-btn" data-price="200">200円</button>
+                        <button class="price-btn" data-price="300">300円</button>
+                        <button class="price-btn" data-price="400">400円</button>
+                        <button class="price-btn" data-price="500">500円</button>
+                    </div>
+                    <div class="custom-price">
+                        <input type="number" id="crane-price" min="100" placeholder="自由入力" oninput="calculateCrane()">
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="input-group">
-            <label>プレイ回数</label>
-            <input type="number" id="crane-plays" min="1" placeholder="例: 10" oninput="calculateCrane()">
-        </div>
-        
-        <button class="calculate-btn" onclick="calculateCrane()">計算する</button>
-        
-        <div class="result">
-            <p>原価率: <span id="crane-result">---</span>%</p>
+            
+            <div class="input-group">
+                <label><i class="fas fa-gamepad"></i> プレイ回数</label>
+                <input type="number" id="crane-plays" min="1" placeholder="例: 10" oninput="calculateCrane()">
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateCrane()">
+                <i class="fas fa-calculator"></i> 計算する
+            </button>
+            
+            <div class="result">
+                <p>原価率: <span id="crane-result">---</span>%</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // JavaScriptコードは変更なし
-        // ... (calculateSetup, calculateCrane, イベントリスナーなど)
+        // ページ読み込み時に保存されたデータを復元
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設定計算のデータ復元
+            if (localStorage.getItem('setup-cost')) {
+                document.getElementById('setup-cost').value = localStorage.getItem('setup-cost');
+            }
+            if (localStorage.getItem('setup-price')) {
+                document.getElementById('setup-price').value = localStorage.getItem('setup-price');
+                updateSelectedButton('setup-price');
+            }
+            
+            // クレーンゲーム計算のデータ復元
+            if (localStorage.getItem('crane-cost')) {
+                document.getElementById('crane-cost').value = localStorage.getItem('crane-cost');
+            }
+            if (localStorage.getItem('crane-price')) {
+                document.getElementById('crane-price').value = localStorage.getItem('crane-price');
+                updateSelectedButton('crane-price');
+            }
+            if (localStorage.getItem('crane-plays')) {
+                document.getElementById('crane-plays').value = localStorage.getItem('crane-plays');
+            }
+            
+            // 計算結果も復元
+            if (localStorage.getItem('plays-needed')) {
+                document.getElementById('plays-needed').innerHTML = localStorage.getItem('plays-needed');
+            }
+            if (localStorage.getItem('detail-result')) {
+                document.getElementById('detail-result').innerHTML = localStorage.getItem('detail-result');
+            }
+            if (localStorage.getItem('crane-result')) {
+                document.getElementById('crane-result').innerText = localStorage.getItem('crane-result');
+            }
+            
+            // ボタンクリック時の処理
+            document.querySelectorAll('.price-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const price = this.getAttribute('data-price');
+                    const inputId = this.closest('.price-selector').querySelector('input[type="number"]').id;
+                    
+                    // すべてのボタンの選択状態を解除
+                    this.closest('.price-buttons').querySelectorAll('.price-btn').forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    
+                    // クリックしたボタンを選択状態に
+                    this.classList.add('selected');
+                    
+                    // 入力欄に値を設定
+                    document.getElementById(inputId).value = price;
+                    
+                    // ローカルストレージに保存
+                    localStorage.setItem(inputId, price);
+                    
+                    // 計算を実行
+                    if (inputId === 'setup-price') {
+                        calculateSetup();
+                    } else if (inputId === 'crane-price') {
+                        calculateCrane();
+                    }
+                });
+            });
+            
+            // 入力欄変更時の処理
+            document.querySelectorAll('.custom-price input').forEach(input => {
+                input.addEventListener('input', function() {
+                    // 入力値が変更されたらボタンの選択を解除
+                    this.closest('.price-selector').querySelectorAll('.price-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // ローカルストレージに保存
+                    localStorage.setItem(this.id, this.value);
+                    
+                    // 計算を実行
+                    if (this.id === 'setup-price') {
+                        calculateSetup();
+                    } else if (this.id === 'crane-price') {
+                        calculateCrane();
+                    }
+                });
+            });
+            
+            // 他の入力欄の変更を監視
+            document.getElementById('setup-cost').addEventListener('input', function() {
+                localStorage.setItem('setup-cost', this.value);
+                calculateSetup();
+            });
+            document.getElementById('crane-cost').addEventListener('input', function() {
+                localStorage.setItem('crane-cost', this.value);
+                calculateCrane();
+            });
+            document.getElementById('crane-plays').addEventListener('input', function() {
+                localStorage.setItem('crane-plays', this.value);
+                calculateCrane();
+            });
+        });
+
+        // 選択された価格ボタンを更新する関数
+        function updateSelectedButton(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            const price = input.value;
+            if (!price) return;
+            
+            // 対応するボタンを探す
+            const buttons = input.closest('.price-selector').querySelectorAll('.price-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-price') === price) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        // 計算関数
+        function calculateSetup() {
+            const cost = parseFloat(document.getElementById("setup-cost").value);
+            const price = parseFloat(document.getElementById("setup-price").value);
+            const playsNeeded = document.getElementById("plays-needed");
+            const detailResult = document.getElementById("detail-result");
+            
+            if (isNaN(cost) || cost < 0) {
+                playsNeeded.innerHTML = "<span class='error'>有効な景品価格を入力してください</span>";
+                detailResult.textContent = "";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', '');
+                return;
+            }
+            
+            if (isNaN(price) || price <= 0) {
+                playsNeeded.innerHTML = "<span class='error'>有効なプレイ料金を入力してください</span>";
+                detailResult.textContent = "";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', '');
+                return;
+            }
+            
+            const plays25Percent = Math.ceil(cost / (price * 0.25));
+            const plays22Percent = Math.floor(cost / (price * 0.22));
+            const plays20Percent = Math.ceil(cost / (price * 0.20));
+            
+            if (plays25Percent <= plays20Percent) {
+                playsNeeded.textContent = `${plays25Percent} ～ ${plays20Percent}回`;
+                
+                const minSales = price * plays25Percent;
+                const midSales = price * plays22Percent;
+                const maxSales = price * plays20Percent;
+                const minRate = (cost / minSales * 100).toFixed(2);
+                const midRate = (cost / midSales * 100).toFixed(2);
+                const maxRate = (cost / maxSales * 100).toFixed(2);
+                
+                detailResult.innerHTML = `
+                    <strong>${plays25Percent}回の場合:</strong> 売上 ${minSales.toLocaleString()}円、原価率 ${minRate}%<br>
+                    <span class="recommended"><strong>${plays22Percent}回の場合:</strong> 売上 ${midSales.toLocaleString()}円、原価率 ${midRate}%←一般的な確率機で使用される値です。</span><br>
+                    <strong>${plays20Percent}回の場合:</strong> 売上 ${maxSales.toLocaleString()}円、原価率 ${maxRate}%
+                `;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.textContent);
+                localStorage.setItem('detail-result', detailResult.innerHTML);
+            } else {
+                playsNeeded.innerHTML = "<span class='error'>条件を満たすプレイ回数がありません</span>";
+                detailResult.textContent = "プレイ料金を調整してみてください。";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', detailResult.textContent);
+            }
+        }
+
+        function calculateCrane() {
+            const cost = parseFloat(document.getElementById("crane-cost").value);
+            const price = parseFloat(document.getElementById("crane-price").value);
+            const plays = parseFloat(document.getElementById("crane-plays").value);
+
+            if (cost >= 0 && price > 0 && plays >= 1) {
+                const sales = price * plays;
+                const rate = (cost / sales) * 100;
+                const resultText = rate.toFixed(2);
+                document.getElementById("crane-result").innerText = resultText;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('crane-result', resultText);
+            } else {
+                const errorText = "正しい値を入力してください";
+                document.getElementById("crane-result").innerText = errorText;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('crane-result', errorText);
+            }
+        }
     </script>
 </body>
 </html>
