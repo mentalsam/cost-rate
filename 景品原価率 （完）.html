@@ -12,7 +12,7 @@
             background-color: #f5f5f5;
         }
 
-        h1, h2 {
+        h2 {
             color: #2c3e50;
             text-align: center;
             margin-bottom: 30px;
@@ -28,45 +28,83 @@
 
         .input-group {
             margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 8px;
         }
 
         label {
-            display: inline-block;
-            width: 220px;
+            display: block;
             font-weight: bold;
             color: #34495e;
+            margin-bottom: 8px;
         }
 
-        input {
-            padding: 8px 12px;
-            width: 180px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 16px;
+        .price-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 12px 20px;
+        .price-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .price-btn {
+            background: #f0f0f0;
             border: none;
-            border-radius: 4px;
+            border-radius: 20px;
+            padding: 8px 15px;
             cursor: pointer;
-            margin-top: 15px;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
-        button:hover {
-            background-color: #2980b9;
+        .price-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .price-btn.selected {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        .custom-price input {
+            padding: 8px 12px;
+            width: 100px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .calculate-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .calculate-btn:hover {
+            background: #2980b9;
         }
 
         .result {
             margin-top: 25px;
             padding: 20px;
-            background-color: white;
+            background: white;
             border-left: 5px solid #3498db;
             border-radius: 4px;
         }
@@ -80,6 +118,10 @@
             color: #e74c3c;
             font-weight: bold;
         }
+        .recommended {
+            color: #27ae60;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -87,18 +129,27 @@
         <h2>設定に使用する原価率計算</h2>
         
         <div class="input-group">
-            <label>景品の仕入れ価格 (円):</label>
-            <input type="number" id="setup-cost" min="0" placeholder="仕入れ価格を入力">
+            <label>景品の仕入れ価格 (円)</label>
+            <input type="number" id="setup-cost" min="0" placeholder="例: 800" oninput="calculateSetup()">
         </div>
         
         <div class="input-group">
-            <label>1回プレイの料金 (円):</label>
-            <input type="number" id="setup-price" min="0" value="100" placeholder="プレイ料金を入力">
+            <label>1回プレイの料金 (円)</label>
+            <div class="price-selector">
+                <div class="price-buttons">
+                    <button class="price-btn" data-price="100">100円</button>
+                    <button class="price-btn" data-price="200">200円</button>
+                    <button class="price-btn" data-price="300">300円</button>
+                    <button class="price-btn" data-price="400">400円</button>
+                    <button class="price-btn" data-price="500">500円</button>
+                </div>
+                <div class="custom-price">
+                    <input type="number" id="setup-price" min="100" placeholder="自由入力" oninput="calculateSetup()">
+                </div>
+            </div>
         </div>
         
-        <div class="input-group">
-            <button onclick="calculateSetup()">計算する</button>
-        </div>
+        <button class="calculate-btn" onclick="calculateSetup()">計算する</button>
         
         <div class="result" id="setup-result">
             <p><span class="highlight-text">原価率20%～25%に必要なプレイ回数</span>: <span id="plays-needed">---</span></p>
@@ -110,23 +161,32 @@
         <h2>クレーンゲーム原価率計算ツール</h2>
         
         <div class="input-group">
-            <label>景品の仕入れ価格 (円):</label>
-            <input type="number" id="crane-cost" min="0" placeholder="仕入れ価格を入力">
+            <label>景品の仕入れ価格 (円)</label>
+            <input type="number" id="crane-cost" min="0" placeholder="例: 800" oninput="calculateCrane()">
         </div>
         
         <div class="input-group">
-            <label>1回プレイの料金 (円):</label>
-            <input type="number" id="crane-price" min="0" placeholder="プレイ料金を入力">
+            <label>1回プレイの料金 (円)</label>
+            <div class="price-selector">
+                <div class="price-buttons">
+                    <button class="price-btn" data-price="100">100円</button>
+                    <button class="price-btn" data-price="200">200円</button>
+                    <button class="price-btn" data-price="300">300円</button>
+                    <button class="price-btn" data-price="400">400円</button>
+                    <button class="price-btn" data-price="500">500円</button>
+                </div>
+                <div class="custom-price">
+                    <input type="number" id="crane-price" min="100" placeholder="自由入力" oninput="calculateCrane()">
+                </div>
+            </div>
         </div>
         
         <div class="input-group">
-            <label>プレイ回数:</label>
-            <input type="number" id="crane-plays" min="1" placeholder="プレイ回数を入力">
+            <label>プレイ回数</label>
+            <input type="number" id="crane-plays" min="1" placeholder="例: 10" oninput="calculateCrane()">
         </div>
         
-        <div class="input-group">
-            <button onclick="calculateCrane()">計算する</button>
-        </div>
+        <button class="calculate-btn" onclick="calculateCrane()">計算する</button>
         
         <div class="result">
             <p>原価率: <span id="crane-result">---</span>%</p>
@@ -134,6 +194,124 @@
     </div>
 
     <script>
+        // ページ読み込み時に保存されたデータを復元
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設定計算のデータ復元
+            if (localStorage.getItem('setup-cost')) {
+                document.getElementById('setup-cost').value = localStorage.getItem('setup-cost');
+            }
+            if (localStorage.getItem('setup-price')) {
+                document.getElementById('setup-price').value = localStorage.getItem('setup-price');
+                updateSelectedButton('setup-price');
+            }
+            
+            // クレーンゲーム計算のデータ復元
+            if (localStorage.getItem('crane-cost')) {
+                document.getElementById('crane-cost').value = localStorage.getItem('crane-cost');
+            }
+            if (localStorage.getItem('crane-price')) {
+                document.getElementById('crane-price').value = localStorage.getItem('crane-price');
+                updateSelectedButton('crane-price');
+            }
+            if (localStorage.getItem('crane-plays')) {
+                document.getElementById('crane-plays').value = localStorage.getItem('crane-plays');
+            }
+            
+            // 計算結果も復元
+            if (localStorage.getItem('plays-needed')) {
+                document.getElementById('plays-needed').innerHTML = localStorage.getItem('plays-needed');
+            }
+            if (localStorage.getItem('detail-result')) {
+                document.getElementById('detail-result').innerHTML = localStorage.getItem('detail-result');
+            }
+            if (localStorage.getItem('crane-result')) {
+                document.getElementById('crane-result').innerText = localStorage.getItem('crane-result');
+            }
+            
+            // ボタンクリック時の処理
+            document.querySelectorAll('.price-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const price = this.getAttribute('data-price');
+                    const inputId = this.closest('.price-selector').querySelector('input[type="number"]').id;
+                    
+                    // すべてのボタンの選択状態を解除
+                    document.querySelectorAll('.price-btn').forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    
+                    // クリックしたボタンを選択状態に
+                    this.classList.add('selected');
+                    
+                    // 入力欄に値を設定
+                    document.getElementById(inputId).value = price;
+                    
+                    // ローカルストレージに保存
+                    localStorage.setItem(inputId, price);
+                    
+                    // 計算を実行
+                    if (inputId === 'setup-price') {
+                        calculateSetup();
+                    } else if (inputId === 'crane-price') {
+                        calculateCrane();
+                    }
+                });
+            });
+            
+            // 入力欄変更時の処理
+            document.querySelectorAll('.custom-price input').forEach(input => {
+                input.addEventListener('input', function() {
+                    // 入力値が変更されたらボタンの選択を解除
+                    document.querySelectorAll('.price-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // ローカルストレージに保存
+                    localStorage.setItem(this.id, this.value);
+                    
+                    // 計算を実行
+                    if (this.id === 'setup-price') {
+                        calculateSetup();
+                    } else if (this.id === 'crane-price') {
+                        calculateCrane();
+                    }
+                });
+            });
+            
+            // 他の入力欄の変更を監視
+            document.getElementById('setup-cost').addEventListener('input', function() {
+                localStorage.setItem('setup-cost', this.value);
+                calculateSetup();
+            });
+            document.getElementById('crane-cost').addEventListener('input', function() {
+                localStorage.setItem('crane-cost', this.value);
+                calculateCrane();
+            });
+            document.getElementById('crane-plays').addEventListener('input', function() {
+                localStorage.setItem('crane-plays', this.value);
+                calculateCrane();
+            });
+        });
+
+        // 選択された価格ボタンを更新する関数
+        function updateSelectedButton(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            const price = input.value;
+            if (!price) return;
+            
+            // 対応するボタンを探す
+            const buttons = input.closest('.price-selector').querySelectorAll('.price-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-price') === price) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        // 計算関数
         function calculateSetup() {
             const cost = parseFloat(document.getElementById("setup-cost").value);
             const price = parseFloat(document.getElementById("setup-price").value);
@@ -143,33 +321,53 @@
             if (isNaN(cost) || cost < 0) {
                 playsNeeded.innerHTML = "<span class='error'>有効な景品価格を入力してください</span>";
                 detailResult.textContent = "";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', '');
                 return;
             }
             
             if (isNaN(price) || price <= 0) {
                 playsNeeded.innerHTML = "<span class='error'>有効なプレイ料金を入力してください</span>";
                 detailResult.textContent = "";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', '');
                 return;
             }
             
             const plays25Percent = Math.ceil(cost / (price * 0.25));
-            const plays20Percent = Math.floor(cost / (price * 0.20));
+            const plays22Percent = Math.floor(cost / (price * 0.22));
+            const plays20Percent = Math.ceil(cost / (price * 0.20));
             
             if (plays25Percent <= plays20Percent) {
                 playsNeeded.textContent = `${plays25Percent} ～ ${plays20Percent}回`;
                 
                 const minSales = price * plays25Percent;
+                const midSales = price * plays22Percent;
                 const maxSales = price * plays20Percent;
                 const minRate = (cost / minSales * 100).toFixed(2);
+                const midRate = (cost / midSales * 100).toFixed(2);
                 const maxRate = (cost / maxSales * 100).toFixed(2);
                 
                 detailResult.innerHTML = `
                     <strong>${plays25Percent}回の場合:</strong> 売上 ${minSales.toLocaleString()}円、原価率 ${minRate}%<br>
+                    <span class="recommended"><strong>${plays22Percent}回の場合:</strong> 売上 ${midSales.toLocaleString()}円、原価率 ${midRate}%←一般的な確率機で使用される値です。</span><br>
                     <strong>${plays20Percent}回の場合:</strong> 売上 ${maxSales.toLocaleString()}円、原価率 ${maxRate}%
                 `;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.textContent);
+                localStorage.setItem('detail-result', detailResult.innerHTML);
             } else {
                 playsNeeded.innerHTML = "<span class='error'>条件を満たすプレイ回数がありません</span>";
                 detailResult.textContent = "プレイ料金を調整してみてください。";
+                
+                // ローカルストレージに保存
+                localStorage.setItem('plays-needed', playsNeeded.innerHTML);
+                localStorage.setItem('detail-result', detailResult.textContent);
             }
         }
 
@@ -181,9 +379,17 @@
             if (cost >= 0 && price > 0 && plays >= 1) {
                 const sales = price * plays;
                 const rate = (cost / sales) * 100;
-                document.getElementById("crane-result").innerText = rate.toFixed(2);
+                const resultText = rate.toFixed(2);
+                document.getElementById("crane-result").innerText = resultText;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('crane-result', resultText);
             } else {
-                document.getElementById("crane-result").innerText = "正しい値を入力してください";
+                const errorText = "正しい値を入力してください";
+                document.getElementById("crane-result").innerText = errorText;
+                
+                // ローカルストレージに保存
+                localStorage.setItem('crane-result', errorText);
             }
         }
     </script>
