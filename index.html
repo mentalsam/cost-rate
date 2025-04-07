@@ -484,6 +484,21 @@
                 border-color: #555;
             }
         }
+
+        /* 22%回数表示用のスタイル */
+        .plays-22 {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(6, 214, 160, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -512,9 +527,10 @@
                 </div>
             </div>
             
-            <button class="calculate-btn" onclick="calculateSetup()">
-                <i class="fas fa-calculator"></i> 計算する
-            </button>
+            <!-- 22%回数表示 -->
+            <div class="plays-22" id="plays-22">
+                原価率22%に必要なプレイ回数: ---
+            </div>
             
             <div class="result" id="setup-result">
                 <p><span class="highlight-text">原価率20%～25%に必要なプレイ回数</span>: <span id="plays-needed">---</span></p>
@@ -621,6 +637,9 @@
             if (localStorage.getItem('crane-result')) {
                 document.getElementById('crane-result').innerText = localStorage.getItem('crane-result');
             }
+            if (localStorage.getItem('plays-22')) {
+                document.getElementById('plays-22').innerText = localStorage.getItem('plays-22');
+            }
             
             // ボタンクリック時の処理
             document.querySelectorAll('.price-btn').forEach(btn => {
@@ -684,6 +703,10 @@
                 localStorage.setItem('crane-plays', this.value);
                 calculateCrane();
             });
+
+            // 初期計算を実行
+            calculateSetup();
+            calculateCrane();
         });
 
         // 選択された価格ボタンを更新する関数
@@ -711,30 +734,38 @@
             const price = parseFloat(document.getElementById("setup-price").value);
             const playsNeeded = document.getElementById("plays-needed");
             const detailResult = document.getElementById("detail-result");
+            const plays22Element = document.getElementById("plays-22");
             
             if (isNaN(cost) || cost < 0) {
                 playsNeeded.innerHTML = "<span class='error'>有効な景品価格を入力してください</span>";
                 detailResult.textContent = "";
+                plays22Element.textContent = "原価率22%に必要なプレイ回数: ---";
                 
                 // ローカルストレージに保存
                 localStorage.setItem('plays-needed', playsNeeded.innerHTML);
                 localStorage.setItem('detail-result', '');
+                localStorage.setItem('plays-22', plays22Element.textContent);
                 return;
             }
             
             if (isNaN(price) || price <= 0) {
                 playsNeeded.innerHTML = "<span class='error'>有効なプレイ料金を入力してください</span>";
                 detailResult.textContent = "";
+                plays22Element.textContent = "原価率22%に必要なプレイ回数: ---";
                 
                 // ローカルストレージに保存
                 localStorage.setItem('plays-needed', playsNeeded.innerHTML);
                 localStorage.setItem('detail-result', '');
+                localStorage.setItem('plays-22', plays22Element.textContent);
                 return;
             }
             
             const plays25Percent = Math.floor(cost / (price * 0.25));
             const plays22Percent = Math.floor(cost / (price * 0.22));
             const plays20Percent = Math.floor(cost / (price * 0.20));
+            
+            // 22%回数を表示
+            plays22Element.textContent = `原価率22%に必要なプレイ回数: ${plays22Percent}回`;
             
             if (plays25Percent <= plays20Percent) {
                 playsNeeded.textContent = `${plays25Percent} ～ ${plays20Percent}回`;
@@ -748,20 +779,22 @@
                 
                 detailResult.innerHTML = `
                     <strong>${plays25Percent}回の場合:</strong> 売上 ${minSales.toLocaleString()}円、原価率 ${minRate}%<br>
-                    <span class="recommended"><strong>${plays22Percent}回の場合:</strong> 売上 ${midSales.toLocaleString()}円、原価率 ${midRate}%←一般的な確率機で使用される値です。</span><br>
                     <strong>${plays20Percent}回の場合:</strong> 売上 ${maxSales.toLocaleString()}円、原価率 ${maxRate}%
                 `;
                 
                 // ローカルストレージに保存
                 localStorage.setItem('plays-needed', playsNeeded.textContent);
                 localStorage.setItem('detail-result', detailResult.innerHTML);
+                localStorage.setItem('plays-22', plays22Element.textContent);
             } else {
                 playsNeeded.innerHTML = "<span class='error'>条件を満たすプレイ回数がありません</span>";
                 detailResult.textContent = "プレイ料金を調整してみてください。";
+                plays22Element.textContent = "原価率22%に必要なプレイ回数: ---";
                 
                 // ローカルストレージに保存
                 localStorage.setItem('plays-needed', playsNeeded.innerHTML);
                 localStorage.setItem('detail-result', detailResult.textContent);
+                localStorage.setItem('plays-22', plays22Element.textContent);
             }
         }
 
